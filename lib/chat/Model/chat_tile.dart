@@ -10,9 +10,10 @@ class ChatTile {
   DateTime lastMsgDateTime = DateTime.now(); // 가장 이른 날짜로 초기화
   int totalMsg = 0; // 메시지 수 초기화
   bool isSticky = false;
+  final ChatRoom chatRoom;
 
   ChatTile({
-    required ChatRoom chatRoom,
+    required this.chatRoom,
   })  : id = chatRoom.id,
         agentName = chatRoom.agentName,
         profImg = chatRoom.profImg;

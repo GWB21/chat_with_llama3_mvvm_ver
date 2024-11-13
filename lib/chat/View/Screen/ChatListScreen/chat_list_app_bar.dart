@@ -10,7 +10,7 @@ class ChatListAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: Text("Chat Rooms (${chatListViewModel.chatRooms.length})"),
+      title: const Text("Chatting"),
       actions: [
         IconButton(
           icon: const Icon(Icons.search),
@@ -19,9 +19,15 @@ class ChatListAppBar extends StatelessWidget implements PreferredSizeWidget {
           },
         ),
         IconButton(
-          icon: const Icon(Icons.more_vert),
+          icon: const Icon(Icons.chat_bubble_outline),
           onPressed: () {
-            // 더보기 메뉴 기능 구현
+            Provider.of<ChatListViewModel>(context, listen: false).addNewChat("New Agent");
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.settings_outlined),
+          onPressed: () {
+            // 세팅 기능 구현
           },
         ),
       ],

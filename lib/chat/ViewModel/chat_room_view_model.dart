@@ -5,15 +5,17 @@ import 'package:flutter/material.dart';
 //챗 룸 뷰 모델
 class ChatRoomViewModel with ChangeNotifier {
   final ChatRoom chatRoom;
+  final VoidCallback onMessageAdded; // 콜백으로 상위에 메시지 추가 알림
 
   // 생성자를 통해 ChatRoom 인스턴스를 주입받아 초기화
-  ChatRoomViewModel({required this.chatRoom});
+  ChatRoomViewModel({required this.chatRoom,required this.onMessageAdded});
 
   // 메시지 추가
   void addMessage(String messageText, {bool isUser = true}) {
     final newMessage = Msg(msg: messageText, isUser: isUser);
     chatRoom.msgList.add(newMessage);
     notifyListeners(); // 메시지 추가 후 상태 알림
+    onMessageAdded();  // 상위 ViewModel에 변화 알림
   }
 
   // 특정 ID로 메시지 삭제
@@ -35,15 +37,13 @@ class ChatRoomViewModel with ChangeNotifier {
   // agentName에 대한 Getter 추가
   String get agentName => chatRoom.agentName;
   int get totalMsg => chatRoom.msgList.length;
-  //
-  // // ID로 메시지 가져오기
-  // Msg Function(String messageId) get messageById => (String messageId) => chatRoom.msgList.singleWhere((message) => message.id == messageId);
-  //
-  // // 인덱스로 메시지 가져오기
-  // Msg Function(int index) get messageByIndex => (int index) => chatRoom.msgList[index];
-  //
-  // // 다른 필요한 getter도 추가 가능
-  // String get lastMsg => chatRoom.msgList.isNotEmpty ? chatRoom.msgList.last.msg : '';
-  // DateTime? get lastMsgTime => chatRoom.msgList.isNotEmpty ? chatRoom.msgList.last.time : null;
-  //
+  Image get profImg => chatRoom.profImg;
+  // 마지막 메시지 안전하게 처리
+  String get lastMsg => chatRoom.msgList.isNotEmpty
+      ? chatRoom.msgList.last.msg
+      : "No messages yet";  // 기본 메시지 표시
+
+  DateTime get lastMsgTime => chatRoom.msgList.isNotEmpty
+      ? chatRoom.msgList.last.time
+      : DateTime.now();  // 기본 시간을 현재 시간으로 설정
 }
