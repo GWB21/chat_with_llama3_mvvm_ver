@@ -27,10 +27,11 @@ class ChatRoomBodyState extends State<ChatRoomBody> {
                 return ListView.builder(
                   itemCount: chatRoomViewModel.totalMsg,
                   itemBuilder: (context, index) {
-                    final message = chatRoomViewModel.chatRoom.msgList[index];
+                    final msgId = chatRoomViewModel.chatRoom.msgList[index].id;
+                    final msg = chatRoomViewModel.getMsgById(msgId); // ID로 Msg 가져오기
                     return ChatRoomMsgTile(
                       chatRoomViewModel: chatRoomViewModel,
-                      message: message,
+                      message: msg,
                     );
                   },
                 );

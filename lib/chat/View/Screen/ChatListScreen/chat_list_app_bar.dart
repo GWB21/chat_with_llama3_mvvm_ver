@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../../ViewModel/chat_list_view_model.dart';
+import '../../Dialog/add_new_chat_dialog.dart';
 
 class ChatListAppBar extends StatelessWidget implements PreferredSizeWidget {
   final ChatListViewModel chatListViewModel;
@@ -21,7 +21,11 @@ class ChatListAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: const Icon(Icons.chat_bubble_outline),
           onPressed: () {
-            Provider.of<ChatListViewModel>(context, listen: false).addNewChat("New Agent");
+            showDialog(
+              barrierDismissible: false,
+              context: context,
+              builder: (context) => AddNewChatDialog(chatList: chatListViewModel),
+            );
           },
         ),
         IconButton(

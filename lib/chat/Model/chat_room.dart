@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
 import 'msg.dart';
 
 class ChatRoom with ChangeNotifier {
@@ -8,6 +7,7 @@ class ChatRoom with ChangeNotifier {
   final Image profImg = Image.asset('lib/asset/IMG_0076.PNG');
   final List<Msg> msgList = [];
   Msg? stickyMsg;
+  bool isSticky = false;
 
   ChatRoom({
     required this.id,

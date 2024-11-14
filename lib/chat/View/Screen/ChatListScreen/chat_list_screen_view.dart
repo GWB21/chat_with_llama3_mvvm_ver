@@ -21,12 +21,9 @@ class ChatListScreenView extends StatelessWidget {
           return ListView.builder(
             itemCount: chatListViewModel.chatRoomViewModels.length,
             itemBuilder: (context, index) {
-              // 개별 ChatRoomViewModel을 ChatListBodyTile로 전달
-              final chatRoomViewModel = chatListViewModel.chatRoomViewModels[index];
-              return ChatListBodyTile(
-                chatRoom: chatRoomViewModel,  // ChatRoomViewModel을 직접 전달
-                chatList: chatListViewModel,
-              );
+              // ID를 통해 ChatRoomViewModel 가져오기
+              final chatRoomId = chatListViewModel.chatRoomViewModels[index].chatRoom.id;
+              return ChatListBodyTile(chatRoomId: chatRoomId,);
             },
           );
         },
