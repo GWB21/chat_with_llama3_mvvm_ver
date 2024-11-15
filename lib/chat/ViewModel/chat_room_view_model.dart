@@ -23,6 +23,7 @@ class ChatRoomViewModel with ChangeNotifier {
   void removeMessageById(String messageId) {
     chatRoom.msgList.removeWhere((message) => message.id == messageId);
     notifyListeners(); // 메시지 삭제 후 상태 알림
+    notifyParent();
   }
   //중간에 있는 메시지를 삭제할때는 어떻게 할까요? => 전체를 리빌드해야하나요? 아니요..
   //AnimatedList를 사용하면 전체 리빌드 필요 없습니다.

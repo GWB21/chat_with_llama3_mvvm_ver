@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../Model/msg.dart';
 import '../../../../ViewModel/chat_room_view_model.dart';
+import '../../../Dialog/message_dialog.dart';
 
 class ChatRoomMsgTile extends StatelessWidget {
   final ChatRoomViewModel chatRoomViewModel;
@@ -10,48 +11,56 @@ class ChatRoomMsgTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      // showdialog작업 필요..
       onLongPress: () {
-        chatRoomViewModel.setStickyMessage(message);
+        // 다이얼로그 표시
+        showDialog(
+          context: context,
+          builder: (context) => MessageDialog(
+            msgId: message.id, // 메시지 ID 전달
+            chatRoomViewModel: chatRoomViewModel, // ChatRoomViewModel 전달
+          ),
+        );
       },
       child: Align(
         alignment: message.isUser ? Alignment.centerRight : Alignment.centerLeft,
-        child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          leading: message.isUser
-              ? null
-              : chatRoomViewModel.chatRoom.profImg, // 시스템 메시지 프로필 이미지
-          title: Container(
-            constraints: BoxConstraints(
-              minWidth: 50, // 최소 너비 설정
-              maxWidth: MediaQuery.of(context).size.width * 0.6, // 화면 너비의 최대 60%로 제한
+        child: Row(
+          mainAxisAlignment: message.isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+          children: [
+            if (message.isUser) // User가 아닌 경우 시간 표시
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: Text(
+                  _formatDateTime(message.time),
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.grey),
+                ),
+              ),
+            Flexible(
+              child: Container(
+                constraints: BoxConstraints(
+                  minWidth: 30,
+                  maxWidth: MediaQuery.of(context).size.width * 0.6,
+                ),
+                margin: const EdgeInsets.only(top: 10, bottom: 10),
+                padding: const EdgeInsets.only(top:5,bottom: 5,left: 10, right:10),
+                decoration: BoxDecoration(
+                  color: message.isUser ? Colors.yellow.shade600 : Colors.white,
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: Text(
+                  message.msg,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black),
+                ),
+              ),
             ),
-            margin: message.isUser? const EdgeInsets.only(left: 50): const EdgeInsets.only(right: 20),
-            padding: const EdgeInsets.all(10.0),
-            decoration: BoxDecoration(
-              color: message.isUser ? Colors.yellow.shade600 : Colors.white,
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            child: Text(
-              message.msg,
-              style: const TextStyle(color: Colors.black, fontSize: 16),
-            ),
-          ),
-          subtitle: !message.isUser
-              ? Text(
-            chatRoomViewModel.chatRoom.agentName, // agentName 표시
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.black),
-          )
-              : null,
-          trailing: message.isUser?
-          const Padding(padding: EdgeInsets.all(0))
-          : Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: Text(
-              _formatDateTime(message.time),
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.grey),
-            ),
-          )
+            if (!message.isUser) // User인 경우 시간 표시
+              Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: Text(
+                  _formatDateTime(message.time),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
+                ),
+              ),
+          ],
         ),
       ),
     );
