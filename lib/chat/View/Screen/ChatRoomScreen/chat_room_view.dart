@@ -11,7 +11,7 @@ class ChatRoomView extends StatelessWidget {
   Widget build(BuildContext context) {
       return Scaffold(
       appBar: ChatRoomAppBar(chatRoomViewModel: chatRoomViewModel),
-      body: ChatRoomBody(chatRoomViewModel: chatRoomViewModel), // 메시지 목록을 StatefulWidget으로 분리
+      body: ChatRoomBody(chatRoomViewModel: chatRoomViewModel),backgroundColor:  Colors.blue.shade200, // 메시지 목록을 StatefulWidget으로 분리
       );
   }
 }

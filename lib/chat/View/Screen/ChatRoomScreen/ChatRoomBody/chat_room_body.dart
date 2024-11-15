@@ -14,62 +14,117 @@ class ChatRoomBody extends StatefulWidget {
 
 class ChatRoomBodyState extends State<ChatRoomBody> {
   final TextEditingController _controller = TextEditingController();
-
+  bool _isExpanded = false;
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: widget.chatRoomViewModel,
-      child: Column(
-        children: [
-          Expanded(
-            child: Consumer<ChatRoomViewModel>(
-              builder: (context, chatRoomViewModel, child) {
-                return ListView.builder(
-                  itemCount: chatRoomViewModel.totalMsg,
-                  itemBuilder: (context, index) {
-                    final msgId = chatRoomViewModel.chatRoom.msgList[index].id;
-                    final msg = chatRoomViewModel.getMsgById(msgId); // ID로 Msg 가져오기
-                    return ChatRoomMsgTile(
-                      chatRoomViewModel: chatRoomViewModel,
-                      message: msg,
-                    );
-                  },
-                );
-              },
+    return Consumer<ChatRoomViewModel>(
+      builder: (context, chatRoomViewModel, child) {
+        return Column(
+          children: [
+            // 고정 메시지를 상단에 겹쳐서 표시
+            Expanded(
+              child: Stack(
+                children: [
+                  ListView.builder(
+                    itemCount: chatRoomViewModel.totalMsg,
+                    itemBuilder: (context, index) {
+                      final msgId = chatRoomViewModel.chatRoom.msgList[index].id;
+                      final msg = chatRoomViewModel.getMsgById(msgId);
+                      return ChatRoomMsgTile(
+                        chatRoomViewModel: chatRoomViewModel,
+                        message: msg,
+                      );
+                    },
+                  ),
+                  if (chatRoomViewModel.chatRoom.stickyMsg != null)
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isExpanded = !_isExpanded;
+                          });
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(left: 15,right: 15),
+                          padding: const EdgeInsets.all(10.0),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12.0), // 라운드 처리
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.3),
+                                spreadRadius: 2,
+                                blurRadius: 5,
+                                offset: const Offset(0, 3), // 그림자 위치
+                              ),
+                            ],
+                          ),
+                          // color: Colors.white,
+                          child: Row(
+                            children: [
+                              Icon(Icons.campaign_outlined, color: Colors.blue.shade200),
+                              const SizedBox(width: 8.0),
+                              Expanded(
+                                child: Text(
+                                  _isExpanded
+                                      ? chatRoomViewModel.chatRoom.stickyMsg!.msg
+                                      : "Notice",
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              ),
+                              Icon(
+                                _isExpanded
+                                    ? Icons.keyboard_arrow_up
+                                    : Icons.keyboard_arrow_down,
+                                color: Colors.black,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                IconButton(onPressed:(){}, icon: const Icon(Icons.add)),
-                Expanded(
-                  //텍스트필드 기능 구현해야함. 20자이상 뭐... 이렇게
-                  child: TextField(
-                    controller: _controller,
-                    onSubmitted: (messageText) {
-                      if (messageText.trim().isNotEmpty) {
-                        widget.chatRoomViewModel.addMessage(messageText.trim());
-                        _controller.clear(); // 입력 후 텍스트 필드 초기화
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
+                  Expanded(
+                    child: TextField(
+                      controller: _controller,
+                      onSubmitted: (messageText) {
+                        if (messageText.trim().isNotEmpty) {
+                          chatRoomViewModel.addMessage(messageText.trim());
+                          _controller.clear();
+                        }
+                      },
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.send),
+                    onPressed: () {
+                      final messageText = _controller.text.trim();
+                      if (messageText.isNotEmpty) {
+                        chatRoomViewModel.addMessage(messageText);
+                        _controller.clear();
                       }
                     },
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.send),
-                  onPressed: () {
-                    final messageText = _controller.text.trim();
-                    if (messageText.isNotEmpty) {
-                      widget.chatRoomViewModel.addMessage(messageText);
-                      _controller.clear(); // 전송 후 텍스트 필드 초기화
-                    }
-                  },
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 }

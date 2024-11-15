@@ -5,6 +5,7 @@ class Msg {
   final String msg;
   final DateTime time;
   final bool isUser;
+  final bool isSticky = false;
 
   Msg({
     required this.msg,

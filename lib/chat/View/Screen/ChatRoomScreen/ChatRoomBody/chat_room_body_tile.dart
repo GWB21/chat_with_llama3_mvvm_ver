@@ -22,6 +22,11 @@ class ChatRoomMsgTile extends StatelessWidget {
               ? null
               : chatRoomViewModel.chatRoom.profImg, // 시스템 메시지 프로필 이미지
           title: Container(
+            constraints: BoxConstraints(
+              minWidth: 50, // 최소 너비 설정
+              maxWidth: MediaQuery.of(context).size.width * 0.6, // 화면 너비의 최대 60%로 제한
+            ),
+            margin: message.isUser? const EdgeInsets.only(left: 50): const EdgeInsets.only(right: 20),
             padding: const EdgeInsets.all(10.0),
             decoration: BoxDecoration(
               color: message.isUser ? Colors.yellow.shade600 : Colors.white,
@@ -38,13 +43,15 @@ class ChatRoomMsgTile extends StatelessWidget {
             style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.black),
           )
               : null,
-          trailing: Padding(
+          trailing: message.isUser?
+          const Padding(padding: EdgeInsets.all(0))
+          : Padding(
             padding: const EdgeInsets.only(top: 8.0),
             child: Text(
               _formatDateTime(message.time),
               style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.grey),
             ),
-          ),
+          )
         ),
       ),
     );
