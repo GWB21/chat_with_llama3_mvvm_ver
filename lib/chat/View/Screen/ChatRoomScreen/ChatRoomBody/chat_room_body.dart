@@ -15,18 +15,23 @@ class ChatRoomBody extends StatefulWidget {
 class ChatRoomBodyState extends State<ChatRoomBody> {
   final TextEditingController _controller = TextEditingController();
   bool _isExpanded = false;
+
   @override
   Widget build(BuildContext context) {
     return Consumer<ChatRoomViewModel>(
       builder: (context, chatRoomViewModel, child) {
         return Column(
           children: [
-            // 고정 메시지를 상단에 겹쳐서 표시
+            // 메시지 리스트와 고정 메시지를 포함한 영역
             Expanded(
               child: Stack(
                 children: [
+                  // 메시지 리스트
                   ListView.builder(
                     itemCount: chatRoomViewModel.totalMsg,
+                    padding: chatRoomViewModel.chatRoom.stickyMsg != null
+                        ? const EdgeInsets.only(top: 70.0) // 고정 메시지를 위한 공간 확보
+                        : EdgeInsets.zero, // 고정 메시지가 없으면 공간 제거
                     itemBuilder: (context, index) {
                       final msgId = chatRoomViewModel.chatRoom.msgList[index].id;
                       final msg = chatRoomViewModel.getMsgById(msgId);
@@ -36,47 +41,38 @@ class ChatRoomBodyState extends State<ChatRoomBody> {
                       );
                     },
                   ),
+                  // 고정 메시지
                   if (chatRoomViewModel.chatRoom.stickyMsg != null)
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      child: GestureDetector(
+                    GestureDetector(
                         onTap: () {
                           setState(() {
                             _isExpanded = !_isExpanded;
                           });
                         },
                         child: Container(
-                          margin: const EdgeInsets.only(left: 15,right: 15),
-                          padding: const EdgeInsets.all(10.0),
+                          margin: const EdgeInsets.only(top:10, left: 5, right: 5),
+                          padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(12.0), // 라운드 처리
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.3),
-                                spreadRadius: 2,
-                                blurRadius: 5,
-                                offset: const Offset(0, 3), // 그림자 위치
-                              ),
-                            ],
+                            borderRadius: BorderRadius.circular(10.0),
                           ),
-                          // color: Colors.white,
                           child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Icon(Icons.campaign_outlined, color: Colors.blue.shade200),
+                              Icon(
+                                Icons.campaign_outlined,
+                                color: Colors.blue.shade200,
+                              ),
                               const SizedBox(width: 8.0),
                               Expanded(
                                 child: Text(
                                   _isExpanded
                                       ? chatRoomViewModel.chatRoom.stickyMsg!.msg
                                       : "Notice",
-                                  style: const TextStyle(
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     color: Colors.black,
-                                    fontWeight: FontWeight.w300,
-                                    fontSize: 20,
                                   ),
+                                  maxLines: _isExpanded ? null : 1,
                                 ),
                               ),
                               Icon(
@@ -89,34 +85,51 @@ class ChatRoomBodyState extends State<ChatRoomBody> {
                           ),
                         ),
                       ),
-                    ),
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
+            // 입력 필드
+            Container(
+              color: Colors.white,
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
+                  // 더하기 버튼
+                  Container(
+                    margin: const EdgeInsets.only(right: 8.0),
+                    child: IconButton(
+                      onPressed: () {
+                        // 파일 추가 또는 다른 동작
+                      },
+                      icon: const Icon(Icons.add, color: Colors.black),
+                    ),
+                  ),
+                  // 텍스트 입력창
                   Expanded(
                     child: TextField(
                       controller: _controller,
-                      // onSubmitted: (messageText) {
-                      //   if (messageText.trim().isNotEmpty) {
-                      //     _controller.clear();
-                      //   }
-                      // },
+                      minLines: 1,
+                      maxLines: 4,
+                      decoration: const InputDecoration(
+                        hintText: "Type your message...",
+                      ),
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.send),
-                    onPressed: () {
-                      final messageText = _controller.text.trim();
-                      if (messageText.isNotEmpty) {
-                        chatRoomViewModel.addUserMessage(_controller.text.trim());
-                        _controller.clear();
-                      }
-                    },
+                  // 전송 버튼
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.yellow.shade600,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.send, color: Colors.black),
+                      onPressed: () {
+                        final messageText = _controller.text.trim();
+                        if (messageText.isNotEmpty && messageText.length >= 20) {
+                          chatRoomViewModel.addUserMessage(messageText);
+                          _controller.clear();
+                        }
+                      },
+                    ),
                   ),
                 ],
               ),
