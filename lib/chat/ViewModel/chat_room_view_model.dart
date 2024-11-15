@@ -2,6 +2,7 @@ import 'package:chat_with_llama3_mvc_pattern/chat/Model/chat_room.dart';
 import 'package:chat_with_llama3_mvc_pattern/chat/Model/msg.dart';
 import 'package:flutter/material.dart';
 
+import '../DataSource/llama3_data_source.dart';
 import 'chat_list_view_model.dart';
 
 //챗 룸 뷰 모델
@@ -18,6 +19,22 @@ class ChatRoomViewModel with ChangeNotifier {
     notifyListeners(); // 메시지 추가 후 상태 알림
     notifyParent();
   }
+
+  // 사용자 메시지 추가 및 응답 처리
+  Future<void> addUserMessage(String messageText) async {
+    // 사용자 메시지 추가
+    addMessage(messageText, isUser: true);
+
+    try {
+      final dataSourceFile = DataSourceFile();
+      // API 호출로 응답 메시지 가져오기
+      final reply = await dataSourceFile.sendMessage(messageText);
+      addMessage(reply, isUser: false); // 응답 메시지 추가
+    } catch (error) {
+      addMessage('Failed to fetch reply. Please try again later.', isUser: false); // 에러 메시지 추가
+    }
+  }
+
 
   // 특정 ID로 메시지 삭제
   void removeMessageById(String messageId) {

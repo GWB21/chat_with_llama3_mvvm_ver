@@ -101,12 +101,11 @@ class ChatRoomBodyState extends State<ChatRoomBody> {
                   Expanded(
                     child: TextField(
                       controller: _controller,
-                      onSubmitted: (messageText) {
-                        if (messageText.trim().isNotEmpty) {
-                          chatRoomViewModel.addMessage(messageText.trim());
-                          _controller.clear();
-                        }
-                      },
+                      // onSubmitted: (messageText) {
+                      //   if (messageText.trim().isNotEmpty) {
+                      //     _controller.clear();
+                      //   }
+                      // },
                     ),
                   ),
                   IconButton(
@@ -114,7 +113,7 @@ class ChatRoomBodyState extends State<ChatRoomBody> {
                     onPressed: () {
                       final messageText = _controller.text.trim();
                       if (messageText.isNotEmpty) {
-                        chatRoomViewModel.addMessage(messageText);
+                        chatRoomViewModel.addUserMessage(_controller.text.trim());
                         _controller.clear();
                       }
                     },
