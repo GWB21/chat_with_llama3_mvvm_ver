@@ -14,64 +14,19 @@ class ChatListBodyTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ChatListViewModel을 통해 ChatRoomViewModel 가져오기
-    final chatListViewModel = Provider.of<ChatListViewModel>(context, listen: false);
-    final chatRoomViewModel = chatListViewModel.getChatRoomViewModel(chatRoomId);
+    final chatListViewModel =
+        Provider.of<ChatListViewModel>(context, listen: true);
+    final chatRoomViewModel =
+        chatListViewModel.getChatRoomViewModel(chatRoomId);
 
-    return ListTile(
-      leading: chatRoomViewModel.profImg,
-      title: Row(
-        children: [
-          Text(
-            chatRoomViewModel.agentName,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          if (chatRoomViewModel.chatRoom.isSticky)
-            const Icon(Icons.push_pin, size: 16, color: Colors.grey),
-        ],
-      ),
-      subtitle: Text(
-        chatRoomViewModel.lastMsg.msg,
-      ),
-      trailing: SizedBox(
-        width: 50, // 원하는 너비로 설정
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              _formatDateTime(chatRoomViewModel.lastMsg.time),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
-            ),
-            Container(
-              width: 25,
-              height: 25,
-              decoration: const BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-                ),
-              child: Align(
-                alignment: Alignment.center, // 텍스트를 중앙에 배치
-                child: Text(
-                  '${chatRoomViewModel.chatRoom.msgList.length}', // 메시지 수 표시
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10, // 글자 크기
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+    return InkWell(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => ChangeNotifierProvider.value(
               value: chatRoomViewModel,
-              child: ChatRoomView(chatRoomViewModel: chatRoomViewModel),
+              child: const ChatRoomView(),
             ),
           ),
         );
@@ -80,14 +35,102 @@ class ChatListBodyTile extends StatelessWidget {
         showDialog(
           barrierDismissible: false,
           context: context,
-          builder: (context) => StickOnTopDialog(chatRoomViewModel: chatRoomViewModel),
+          builder: (context) =>
+              const StickOnTopDialog(),
         );
       },
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        height: 50,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            // Leading (프로필 이미지)
+            SizedBox(
+              width: 40,
+              height: 40,
+              child: chatRoomViewModel.profImg,
+            ),
+            const SizedBox(width: 16),
+            // Title과 Subtitle을 포함하는 중앙 영역
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        chatRoomViewModel.agentName,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      if (chatRoomViewModel.chatRoom.isSticky)
+                        const Icon(Icons.push_pin, size: 16, color: Colors.grey),
+                    ],
+                  ),
+                  Text(
+                    chatRoomViewModel.lastMsg.msg,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            // Trailing (시간과 메시지 수)
+            SizedBox(
+              width: 70,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    _formatDateTime(chatRoomViewModel.lastMsg.time),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: Colors.grey),
+                  ),
+                  Container(
+                    width: 25,
+                    height: 25,
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${chatRoomViewModel.chatRoom.msgList.length}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   String _formatDateTime(DateTime? dateTime) {
     if (dateTime == null) return '';
-    return "${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}";
+    
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final messageDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
+
+    // 오늘 날짜인 경우이거나 1970.01.01 초기화시에는 00:00만 표현
+    if (messageDate == today || dateTime == DateTime.fromMillisecondsSinceEpoch(0,isUtc: true)) {
+      return "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}";
+    }
+    // 오늘이 아닌 경우
+    else {
+      return "${dateTime.year}.${dateTime.month.toString().padLeft(2, '0')}.${dateTime.day.toString().padLeft(2, '0')}";
+    }
   }
 }

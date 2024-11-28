@@ -4,9 +4,8 @@ import '../Screen/ChatRoomScreen/chat_room_view.dart';
 import 'package:provider/provider.dart';
 
 class AddNewChatDialog extends StatefulWidget {
-  final ChatListViewModel chatList;
 
-  const AddNewChatDialog({super.key, required this.chatList});
+  const AddNewChatDialog({super.key});
 
   @override
   State<AddNewChatDialog> createState() => _AddNewChatDialogState();
@@ -18,6 +17,7 @@ class _AddNewChatDialogState extends State<AddNewChatDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final chatListViewModel = Provider.of<ChatListViewModel>(context, listen: false);
     return AlertDialog(
       title: const Text('Agent Name'),
       content: Form(
@@ -45,8 +45,8 @@ class _AddNewChatDialogState extends State<AddNewChatDialog> {
           onPressed: () {
             if (_formKey.currentState!.validate()) {
               final agentName = _controller.text.trim();
-              final newChatRoomId = widget.chatList.addNewChat(agentName);
-              final newChatRoom = widget.chatList.getChatRoomViewModel(newChatRoomId); // ID를 사용해 Provider에서 새로 생성된 ChatRoomViewModel 가져오기
+              final newChatRoomId = chatListViewModel.addNewChat(agentName);
+              final newChatRoom = chatListViewModel.getChatRoomViewModel(newChatRoomId); // ID를 사용해 Provider에서 새로 생성된 ChatRoomViewModel 가져오기
               Navigator.of(context).pop(); // 다이얼로그 닫기
               // 새 채팅방으로 이동
               Navigator.push(
@@ -54,7 +54,7 @@ class _AddNewChatDialogState extends State<AddNewChatDialog> {
                 MaterialPageRoute(
                   builder: (context) => ChangeNotifierProvider.value(
                     value: newChatRoom,
-                    child: ChatRoomView(chatRoomViewModel: newChatRoom),
+                    child: const ChatRoomView(),
                   ),
                 ),
               );

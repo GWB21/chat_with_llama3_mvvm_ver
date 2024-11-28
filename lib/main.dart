@@ -17,9 +17,9 @@ class ChattingApp extends StatelessWidget {
       create: (_) => ChatListViewModel(),
       builder: (context, child) {
         final chatListViewModel = Provider.of<ChatListViewModel>(context, listen: false);
-        return MaterialApp(
+        return const MaterialApp(
           debugShowCheckedModeBanner: false,
-          home: ChatListScreenView(chatListViewModel: chatListViewModel),
+          home: ChatListScreenView(),
         );
       },
     );

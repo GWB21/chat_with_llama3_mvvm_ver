@@ -2,16 +2,19 @@ import 'package:chat_with_llama3_mvc_pattern/chat/View/Screen/ChatRoomScreen/cha
 import 'package:chat_with_llama3_mvc_pattern/chat/View/Screen/ChatRoomScreen/ChatRoomBody/chat_room_body.dart';
 import 'package:flutter/material.dart';
 import '../../../ViewModel/chat_room_view_model.dart';
+import 'package:provider/provider.dart';
 
 class ChatRoomView extends StatelessWidget {
-  final ChatRoomViewModel chatRoomViewModel;
-  const ChatRoomView({super.key, required this.chatRoomViewModel});
+  final String chatRoomId;
+  const ChatRoomView({super.key, required this.chatRoomId});
 
   @override
   Widget build(BuildContext context) {
-      return Scaffold(
+    final chatRoomViewModel = Provider.of<ChatRoomViewModel>(context);
+    
+    return Scaffold(
       appBar: ChatRoomAppBar(chatRoomViewModel: chatRoomViewModel),
-      body: ChatRoomBody(chatRoomViewModel: chatRoomViewModel),backgroundColor:  Colors.blue.shade200, // 메시지 목록을 StatefulWidget으로 분리
-      );
+      body: ChatRoomBody(chatRoomId: chatRoomId),backgroundColor:  Colors.blue.shade200, // 메시지 목록을 StatefulWidget으로 분리
+    );
   }
 }

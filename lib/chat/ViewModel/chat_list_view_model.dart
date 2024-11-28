@@ -14,7 +14,7 @@ class ChatListViewModel with ChangeNotifier {
   // 새로운 ChatRoomViewModel 추가
   String addNewChat(String agentName) {
     final chatRoom = ChatRoom(id: const Uuid().v4(), agentName: agentName);
-    final chatRoomViewModel = ChatRoomViewModel(chatRoom: chatRoom, parentViewModel: this); // 상태 변화 시 전체 리스트에 반영)
+    final chatRoomViewModel = ChatRoomViewModel(chatRoom: chatRoom, chatListViewModel: this); // 상태 변화 시 전체 리스트에 반영)
     notStickyChatList.add(chatRoomViewModel);
     notifyListeners();
     return chatRoom.id; // 생성된 채팅방 ID 반환
@@ -45,6 +45,34 @@ class ChatListViewModel with ChangeNotifier {
   // 특정 ChatRoomViewModel 가져오기
   ChatRoomViewModel getChatRoomViewModel(String roomId) {
     return chatRoomViewModels.singleWhere((viewModel) => viewModel.chatRoom.id == roomId);
+  }
+
+  void update() {
+    notifyListeners();
+  }
+
+  void sortByDate() {
+    // sticky와 non-sticky 각각 정렬
+    stickyChatList.sort((a, b) => 
+      b.chatRoom.msgList.last.time.compareTo(a.chatRoom.msgList.last.time)); // 최신순
+    
+    notStickyChatList.sort((a, b) => 
+      b.chatRoom.msgList.last.time.compareTo(a.chatRoom.msgList.last.time)); // 최신순
+    
+    print("sorted by date");
+    notifyListeners();
+  }
+
+  void sortByName() {
+    // sticky와 non-sticky 각각 정렬
+    stickyChatList.sort((a, b) => 
+      a.chatRoom.agentName.compareTo(b.chatRoom.agentName));
+    
+    notStickyChatList.sort((a, b) => 
+      a.chatRoom.agentName.compareTo(b.chatRoom.agentName));
+    
+    print("sorted by name");
+    notifyListeners();
   }
 }
 //message가 추가 될때마다 chatlistview한테 상태 알려줘서 리빌드?

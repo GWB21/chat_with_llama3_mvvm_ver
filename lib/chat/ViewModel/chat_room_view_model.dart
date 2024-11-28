@@ -7,17 +7,17 @@ import 'chat_list_view_model.dart';
 
 //챗 룸 뷰 모델
 class ChatRoomViewModel with ChangeNotifier {
+  final ChatListViewModel chatListViewModel;
   final ChatRoom chatRoom;
-  final ChatListViewModel parentViewModel; // 상위 ViewModel 참조
-  // 생성자를 통해 ChatRoom 인스턴스를 주입받아 초기화
-  ChatRoomViewModel({required this.chatRoom, required this.parentViewModel});
+
+  ChatRoomViewModel({required this.chatListViewModel, required this.chatRoom});
 
   // 메시지 추가
   void addMessage(String messageText, {bool isUser = true}) {
     final newMessage = Msg(msg: messageText, isUser: isUser);
     chatRoom.msgList.add(newMessage);
     notifyListeners(); // 메시지 추가 후 상태 알림
-    notifyParent();
+    chatListViewModel.update();
   }
 
   // 사용자 메시지 추가 및 응답 처리
@@ -40,7 +40,7 @@ class ChatRoomViewModel with ChangeNotifier {
   void removeMessageById(String messageId) {
     chatRoom.msgList.removeWhere((message) => message.id == messageId);
     notifyListeners(); // 메시지 삭제 후 상태 알림
-    notifyParent();
+    chatListViewModel.update();
   }
   //중간에 있는 메시지를 삭제할때는 어떻게 할까요? => 전체를 리빌드해야하나요? 아니요..
   //AnimatedList를 사용하면 전체 리빌드 필요 없습니다.
@@ -56,11 +56,6 @@ class ChatRoomViewModel with ChangeNotifier {
   // ID로 Msg 찾기
   Msg getMsgById(String msgId) {
     return chatRoom.msgList.singleWhere((msg) => msg.id == msgId);
-  }
-
-  // 상위 ViewModel에 알리는 메서드
-  void notifyParent() {
-    parentViewModel.notifyListeners();
   }
 
   // agentName에 대한 Getter 추가

@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:chat_with_llama3_mvc_pattern/chat/ViewModel/chat_room_view_model.dart';
+import 'package:provider/provider.dart';
 
 class MessageDialog extends StatelessWidget {
   final String msgId; // 메시지 ID를 전달받음
-  final ChatRoomViewModel chatRoomViewModel;
 
   const MessageDialog({
     super.key,
-    required this.msgId,
-    required this.chatRoomViewModel,
+    required this.msgId
   });
 
   @override
   Widget build(BuildContext context) {
+    final chatRoomViewModel = Provider.of<ChatRoomViewModel>(context, listen:false);
     return SimpleDialog(
       children: [
         ListTile(

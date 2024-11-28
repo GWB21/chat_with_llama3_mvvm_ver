@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../Model/msg.dart';
 import '../../../../ViewModel/chat_room_view_model.dart';
 import '../../../Dialog/message_dialog.dart';
 
 class ChatRoomMsgTile extends StatelessWidget {
-  final ChatRoomViewModel chatRoomViewModel;
   final Msg message;
   const ChatRoomMsgTile(
-      {super.key, required this.chatRoomViewModel, required this.message});
+      {super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {
+    final chatRoomViewModel = Provider.of<ChatRoomViewModel>(context, listen:false);
     return GestureDetector(
       onTap: () {
         // 다이얼로그 표시
@@ -18,8 +19,7 @@ class ChatRoomMsgTile extends StatelessWidget {
           barrierDismissible: false,
           context: context,
           builder: (context) => MessageDialog(
-            msgId: message.id,
-            chatRoomViewModel: chatRoomViewModel,
+            msgId: message.id
           ),
         );
       },
