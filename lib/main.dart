@@ -2,9 +2,17 @@ import 'package:chat_with_llama3_mvc_pattern/chat/View/Screen/ChatListScreen/cha
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'chat/ViewModel/chat_list_view_model.dart';
+import 'chat/Repository/local_data_source.dart';
 
+/*Declare a global instance of LocalDataSource*/
+final LocalDataSource globalLocalDataSource = LocalDataSource();
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize the global LocalDataSource
+  await globalLocalDataSource.initialize();
+
   runApp(const ChattingApp());
 }
 
@@ -16,7 +24,6 @@ class ChattingApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => ChatListViewModel(),
       builder: (context, child) {
-        final chatListViewModel = Provider.of<ChatListViewModel>(context, listen: false);
         return const MaterialApp(
           debugShowCheckedModeBanner: false,
           home: ChatListScreenView(),

@@ -1,7 +1,7 @@
 import 'package:uuid/uuid.dart';
+import '../../main.dart';
 import '../Model/chat_room.dart';
 import 'package:flutter/material.dart';
-
 import 'chat_room_view_model.dart';
 
 //챗 리스트 뷰 모델
@@ -11,12 +11,21 @@ class ChatListViewModel with ChangeNotifier {
   // 전체 ChatRoomViewModel 리스트 제공
   List<ChatRoomViewModel> get chatRoomViewModels => [...stickyChatList, ...notStickyChatList];
 
+  ChatListViewModel() {
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    loadChatRooms();
+  }
+
   // 새로운 ChatRoomViewModel 추가
   String addNewChat(String agentName) {
-    final chatRoom = ChatRoom(id: const Uuid().v4(), agentName: agentName);
+    final chatRoom = ChatRoom(id: const Uuid().v4(), agentName: agentName, isSticky: false);
     final chatRoomViewModel = ChatRoomViewModel(chatRoom: chatRoom, chatListViewModel: this); // 상태 변화 시 전체 리스트에 반영)
     notStickyChatList.add(chatRoomViewModel);
     notifyListeners();
+    saveChatRooms();
     return chatRoom.id; // 생성된 채팅방 ID 반환
   }
 
@@ -28,6 +37,7 @@ class ChatListViewModel with ChangeNotifier {
       stickyChatList.insert(0, chatRoomViewModel); // 첫 번째에 추가
       chatRoomViewModel.chatRoom.isSticky = true;
       notifyListeners();
+      saveChatRooms();
     }
   }
 
@@ -39,6 +49,7 @@ class ChatListViewModel with ChangeNotifier {
       notStickyChatList.add(chatRoomViewModel);
       chatRoomViewModel.chatRoom.isSticky = false;
       notifyListeners();
+      saveChatRooms();
     }
   }
 
@@ -54,10 +65,10 @@ class ChatListViewModel with ChangeNotifier {
   void sortByDate() {
     // sticky와 non-sticky 각각 정렬
     stickyChatList.sort((a, b) => 
-      b.chatRoom.msgList.last.time.compareTo(a.chatRoom.msgList.last.time)); // 최신순
+      b.lastMsg.time.compareTo(a.lastMsg.time)); // 최신순
     
     notStickyChatList.sort((a, b) => 
-      b.chatRoom.msgList.last.time.compareTo(a.chatRoom.msgList.last.time)); // 최신순
+      b.lastMsg.time.compareTo(a.lastMsg.time)); // 최신순
     
     print("sorted by date");
     notifyListeners();
@@ -65,13 +76,33 @@ class ChatListViewModel with ChangeNotifier {
 
   void sortByName() {
     // sticky와 non-sticky 각각 정렬
-    stickyChatList.sort((a, b) => 
-      a.chatRoom.agentName.compareTo(b.chatRoom.agentName));
-    
-    notStickyChatList.sort((a, b) => 
-      a.chatRoom.agentName.compareTo(b.chatRoom.agentName));
-    
+    stickyChatList.sort((a, b) =>
+        a.chatRoom.agentName.compareTo(b.chatRoom.agentName));
+
+    notStickyChatList.sort((a, b) =>
+        a.chatRoom.agentName.compareTo(b.chatRoom.agentName));
+
     print("sorted by name");
+    notifyListeners();
+  }
+
+  Future<void> saveChatRooms() async {
+    final chatRooms = chatRoomViewModels.map((vm) => vm.chatRoom).toList();
+    await globalLocalDataSource.saveChatRooms(chatRooms);
+  }
+
+  Future<void> loadChatRooms() async {
+    final chatRooms = await globalLocalDataSource.loadChatRooms();
+    stickyChatList.clear();
+    notStickyChatList.clear();
+    for (var room in chatRooms) {
+      final viewModel = ChatRoomViewModel(chatRoom: room, chatListViewModel: this);
+      if (room.isSticky) {
+        stickyChatList.add(viewModel);
+      } else {
+        notStickyChatList.add(viewModel);
+      }
+    }
     notifyListeners();
   }
 }

@@ -24,9 +24,8 @@ class ChatListBodyTile extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ChangeNotifierProvider.value(
-              value: chatRoomViewModel,
-              child: const ChatRoomView(),
+            builder: (context) => ChatRoomView(
+              chatRoomId: chatRoomId
             ),
           ),
         );
@@ -35,8 +34,7 @@ class ChatListBodyTile extends StatelessWidget {
         showDialog(
           barrierDismissible: false,
           context: context,
-          builder: (context) =>
-              const StickOnTopDialog(),
+          builder: (context) => StickOnTopDialog(chatRoomId: chatRoomId),
         );
       },
       child: Container(
@@ -64,12 +62,16 @@ class ChatListBodyTile extends StatelessWidget {
                         chatRoomViewModel.agentName,
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      if (chatRoomViewModel.chatRoom.isSticky)
+                      if (chatRoomViewModel.isSticky)
                         const Icon(Icons.push_pin, size: 16, color: Colors.grey),
                     ],
                   ),
                   Text(
                     chatRoomViewModel.lastMsg.msg,
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelSmall
+                        ?.copyWith(color: Colors.grey),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -100,11 +102,10 @@ class ChatListBodyTile extends StatelessWidget {
                     child: Center(
                       child: Text(
                         '${chatRoomViewModel.chatRoom.msgList.length}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(color: Colors.white),
                       ),
                     ),
                   ),

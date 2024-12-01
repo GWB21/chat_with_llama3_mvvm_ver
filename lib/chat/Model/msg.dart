@@ -1,15 +1,36 @@
 import 'package:uuid/uuid.dart';
 
 class Msg {
-  final String id = const Uuid().v4();
+  final String id;
   final String msg;
   final DateTime time;
   final bool isUser;
-  final bool isSticky = false;
 
   Msg({
+    String? id,
     required this.msg,
     DateTime? time,
     this.isUser = true,
-  }) : time = time ?? DateTime.now(); // Set time to provided value or DateTime.now() if null
+  })  : id = id ?? const Uuid().v4(),
+        time = time ?? DateTime.now();
+
+  // Convert Msg object to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'msg': msg,
+      'time': time.toIso8601String(),
+      'isUser': isUser,
+    };
+  }
+
+  // Create Msg object from JSON
+  factory Msg.fromJson(Map<String, dynamic> json) {
+    return Msg(
+      id: json['id'],
+      msg: json['msg'],
+      time: DateTime.parse(json['time']),
+      isUser: json['isUser'],
+    );
+  }
 }

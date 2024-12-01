@@ -46,15 +46,13 @@ class _AddNewChatDialogState extends State<AddNewChatDialog> {
             if (_formKey.currentState!.validate()) {
               final agentName = _controller.text.trim();
               final newChatRoomId = chatListViewModel.addNewChat(agentName);
-              final newChatRoom = chatListViewModel.getChatRoomViewModel(newChatRoomId); // ID를 사용해 Provider에서 새로 생성된 ChatRoomViewModel 가져오기
               Navigator.of(context).pop(); // 다이얼로그 닫기
               // 새 채팅방으로 이동
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ChangeNotifierProvider.value(
-                    value: newChatRoom,
-                    child: const ChatRoomView(),
+                  builder: (context) => ChatRoomView(
+                    chatRoomId: newChatRoomId,
                   ),
                 ),
               );

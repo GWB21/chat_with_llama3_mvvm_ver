@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../ViewModel/chat_list_view_model.dart';
 import '../../Dialog/add_new_chat_dialog.dart';
-import 'package:provider/provider.dart';
 
 class ChatListAppBar extends StatelessWidget implements PreferredSizeWidget {
   const ChatListAppBar({super.key});
@@ -24,7 +22,7 @@ class ChatListAppBar extends StatelessWidget implements PreferredSizeWidget {
             showDialog(
               barrierDismissible: false,
               context: context,
-              builder: (context) => AddNewChatDialog(),
+              builder: (context) => const AddNewChatDialog(),
             );
           },
         ),

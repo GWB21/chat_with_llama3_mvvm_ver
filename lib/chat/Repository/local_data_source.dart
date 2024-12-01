@@ -1,39 +1,60 @@
-// import 'dart:convert';
-// import 'dart:io';
-// import 'package:path_provider/path_provider.dart';
-//
-// class LocalDataSource {
-//   Future<List<Map<String, dynamic>>> loadData() async {
-//     final directory = await getApplicationDocumentsDirectory();
-//     final file = File('${directory.path}/chat_data.json');
-//
-//     if (await file.exists()) {
-//       final contents = await file.readAsString();
-//       return List<Map<String, dynamic>>.from(jsonDecode(contents));
-//     } else {
-//       return [];
-//     }
-//   }
-//
-//   Future<void> saveData(List<Map<String, dynamic>> data) async {
-//     final directory = await getApplicationDownloadsDirectory();
-//     final file = File('${directory.path}/chat_data.json');
-//     await file.writeAsString(jsonEncode(data));
-//   }
-// }
-//
-//
-// import 'dart:io';
-// import 'package:path_provider_android/path_provider_android.dart';
-//
-// Future<Directory?> getDownloadDirectory() async {
-//   if (Platform.isAndroid) {
-//     final directories = await PathProviderAndroid.getExternalStorageDirectories(
-//       type: StorageDirectory.downloads,
-//     );
-//     return directories.isNotEmpty ? directories.first : null;
-//   } else {
-//     print("Download directory is only available on Android.");
-//     return null;
-//   }
-// }
+import 'dart:convert';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import '../Model/chat_room.dart';
+import '../Model/msg.dart';
+
+class LocalDataSource {
+  late final String directoryPath;
+
+  LocalDataSource();
+
+  Future<void> initialize() async {
+    final directory = await getDownloadsDirectory();
+    if (directory != null) {
+      directoryPath = directory.path;
+    } else {
+      throw Exception('Could not find the downloads directory');
+    }
+  }
+
+  Future<List<ChatRoom>> loadChatRooms() async {
+    final file = File('$directoryPath/chat_log.json');
+    if (!await file.exists()) {
+      return [];
+    }
+    final jsonData = await file.readAsString();
+    final List<dynamic> jsonList = jsonDecode(jsonData);
+    final futures = jsonList.map((json) => ChatRoom.fromJson(json)).toList();
+    return Future.wait(futures);
+  }
+
+  Future<void> saveChatRooms(List<ChatRoom> chatRooms) async {
+    final file = File('$directoryPath/chat_log.json');
+    final jsonData = jsonEncode(chatRooms.map((room) => room.toJson()).toList());
+    await file.writeAsString(jsonData);
+  }
+
+  Future<void> saveChatRoomMessages(ChatRoom chatRoom) async {
+    final agentFile = File('$directoryPath/log_${chatRoom.agentName}.json');
+    final agentData = {
+      'msgList': chatRoom.msgList.map((msg) => msg.toJson()).toList(),
+      'stickyMsg': chatRoom.stickyMsg?.toJson(),
+    };
+    await agentFile.writeAsString(jsonEncode(agentData));
+  }
+
+  Future<void> loadChatRoomMessages(ChatRoom chatRoom) async {
+    final agentFile = File('$directoryPath/log_${chatRoom.agentName}.json');
+    if (await agentFile.exists()) {
+      final jsonData = await agentFile.readAsString();
+      final Map<String, dynamic> agentData = jsonDecode(jsonData);
+      chatRoom.msgList.clear();
+      chatRoom.msgList.addAll((agentData['msgList'] as List)
+          .map((msgJson) => Msg.fromJson(msgJson)));
+      chatRoom.stickyMsg = agentData['stickyMsg'] != null
+          ? Msg.fromJson(agentData['stickyMsg'])
+          : null;
+    }
+  }
+}

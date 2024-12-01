@@ -1,14 +1,16 @@
+import 'package:chat_with_llama3_mvc_pattern/chat/ViewModel/chat_list_view_model.dart';
 import 'package:flutter/material.dart';
-import '../../../ViewModel/chat_room_view_model.dart';
+import 'package:provider/provider.dart';
 
 
 class ChatRoomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final ChatRoomViewModel chatRoomViewModel;
+  final String chatRoomId;
 
-  const ChatRoomAppBar({super.key, required this.chatRoomViewModel});
+  const ChatRoomAppBar({super.key, required this.chatRoomId});
 
   @override
   Widget build(BuildContext context) {
+    final chatRoomViewModel = Provider.of<ChatListViewModel>(context, listen:true).getChatRoomViewModel(chatRoomId);
     return AppBar(
       backgroundColor: Colors.blue.shade200,
       leading: IconButton(
