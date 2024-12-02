@@ -37,8 +37,9 @@ class ChatRoomViewModel{
   void addMessage(String messageText, {bool isUser = true}) {
     final newMessage = Msg(msg: messageText, isUser: isUser);
     chatRoom.msgList.add(newMessage);
-    chatListViewModel.update();
     globalLocalDataSource.saveChatRoomMessages(chatRoom);
+    // 현재 탭 인덱스에 따라 정렬
+    chatListViewModel.setCurrentTabIndex(chatListViewModel.currentTabIndex);
   }
 
   // 사용자 메시지 추가 및 응답 처리

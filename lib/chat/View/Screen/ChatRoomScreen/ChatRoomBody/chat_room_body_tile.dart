@@ -112,10 +112,7 @@ class ChatRoomMsgTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    chatRoomViewModel.agentName,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Colors.black,
-                    ),
+                    chatRoomViewModel.agentName
                   ),
                   const SizedBox(height: 4.0),
                   Row(

@@ -11,6 +11,22 @@ class ChatListViewModel with ChangeNotifier {
   // 전체 ChatRoomViewModel 리스트 제공
   List<ChatRoomViewModel> get chatRoomViewModels => [...stickyChatList, ...notStickyChatList];
 
+  int _currentTabIndex = 0;
+
+  // Getter
+  int get currentTabIndex => _currentTabIndex;
+
+  // Setter
+  void setCurrentTabIndex(int index) {
+    _currentTabIndex = index;
+    if (index == 0) {
+      sortByName();
+    } else {
+      sortByDate();
+    }
+    notifyListeners();
+  }
+
   ChatListViewModel() {
     _initialize();
   }
@@ -24,7 +40,9 @@ class ChatListViewModel with ChangeNotifier {
     final chatRoom = ChatRoom(id: const Uuid().v4(), agentName: agentName, isSticky: false);
     final chatRoomViewModel = ChatRoomViewModel(chatRoom: chatRoom, chatListViewModel: this); // 상태 변화 시 전체 리스트에 반영)
     notStickyChatList.add(chatRoomViewModel);
-    notifyListeners();
+    
+    // 현재 탭 인덱스에 따라 정렬
+    setCurrentTabIndex(_currentTabIndex);  // 현재 인덱스로 다시 정렬
     saveChatRooms();
     return chatRoom.id; // 생성된 채팅방 ID 반환
   }
@@ -36,22 +54,22 @@ class ChatListViewModel with ChangeNotifier {
       notStickyChatList.removeWhere((viewModel) => viewModel.chatRoom.id == id);
       stickyChatList.insert(0, chatRoomViewModel); // 첫 번째에 추가
       chatRoomViewModel.chatRoom.isSticky = true;
-      notifyListeners();
+      setCurrentTabIndex(_currentTabIndex);
       saveChatRooms();
     }
   }
 
-// 특정 ChatRoomViewModel을 non-sticky 상태로 변경
-  void removeSticky(String id) {
-    final chatRoomViewModel = getChatRoomViewModel(id);
-    if(chatRoomViewModel.chatRoom.isSticky == true) {
-      stickyChatList.removeWhere((viewModel) => viewModel.chatRoom.id == id);
-      notStickyChatList.add(chatRoomViewModel);
-      chatRoomViewModel.chatRoom.isSticky = false;
-      notifyListeners();
-      saveChatRooms();
-    }
-  }
+// // 특정 ChatRoomViewModel을 non-sticky 상태로 변경
+//   void removeSticky(String id) {
+//     final chatRoomViewModel = getChatRoomViewModel(id);
+//     if(chatRoomViewModel.chatRoom.isSticky == true) {
+//       stickyChatList.removeWhere((viewModel) => viewModel.chatRoom.id == id);
+//       notStickyChatList.add(chatRoomViewModel);
+//       chatRoomViewModel.chatRoom.isSticky = false;
+//       notifyListeners();
+//       saveChatRooms();
+//     }
+//   }
 
   // 특정 ChatRoomViewModel 가져오기
   ChatRoomViewModel getChatRoomViewModel(String roomId) {
@@ -71,7 +89,6 @@ class ChatListViewModel with ChangeNotifier {
       b.lastMsg.time.compareTo(a.lastMsg.time)); // 최신순
     
     print("sorted by date");
-    notifyListeners();
   }
 
   void sortByName() {
@@ -83,7 +100,6 @@ class ChatListViewModel with ChangeNotifier {
         a.chatRoom.agentName.compareTo(b.chatRoom.agentName));
 
     print("sorted by name");
-    notifyListeners();
   }
 
   Future<void> saveChatRooms() async {

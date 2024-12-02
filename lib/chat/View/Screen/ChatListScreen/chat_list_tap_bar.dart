@@ -11,7 +11,7 @@ class ChatListTabBar extends StatefulWidget {
 
 class _ChatListTabBarState extends State<ChatListTabBar> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final int _defaultIndex = -1;  // 마지막으로 누른 탭의 인덱스를 저장
+  late final int _defaultIndex;  // 마지막으로 누른 탭의 인덱스를 저장
   @override
   void initState() {
     super.initState();
@@ -31,23 +31,9 @@ class _ChatListTabBarState extends State<ChatListTabBar> with SingleTickerProvid
     return TabBar(
       controller: _tabController,
       onTap: (index) {
-        // 같은 탭을 눌렀을 때도 정렬 실행
-        if (index == 0) {
-          for (var chatRoomViewModel in chatListViewModel.notStickyChatList) {
-            print(chatRoomViewModel.agentName);
-          }
-          for (var chatRoomViewModel in chatListViewModel.stickyChatList) {
-            print(chatRoomViewModel.agentName);
-          }
-          chatListViewModel.sortByName();
-        } else if (index == 1){
-          for (var chatRoomViewModel in chatListViewModel.chatRoomViewModels) {
-            print(chatRoomViewModel.lastMsg.time);
-          }
-          chatListViewModel.sortByDate();
-        }
+        chatListViewModel.setCurrentTabIndex(index);
         setState(() {
-          index = _defaultIndex;
+          _defaultIndex = index;
         });
       },
       tabs: const [
