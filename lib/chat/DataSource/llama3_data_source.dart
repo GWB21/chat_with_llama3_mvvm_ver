@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class DataSourceFile {
-  final String apiKey = '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';
-  final String apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
-
+  final String apiKey = dotenv.env['API_KEY']!;
+  final String apiUrl = dotenv.env['API_URL']!;
 
   // 메시지 전송 및 응답 반환
   Future<String> sendMessage(String message) async {
@@ -17,7 +17,7 @@ class DataSourceFile {
         },
         body: jsonEncode({
           'model': 'llama3-8b-8192',
-          'messages': [{'role' : 'user', 'content': message}],
+          'messages': [{'role': 'user', 'content': message}],
         }),
       );
 

@@ -1,5 +1,6 @@
 import 'package:chat_with_llama3_mvc_pattern/chat/View/Screen/ChatListScreen/chat_list_screen_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'chat/ViewModel/chat_list_view_model.dart';
 import 'chat/Repository/local_data_source.dart';
@@ -12,6 +13,7 @@ void main() async {
 
   // Initialize the global LocalDataSource
   await globalLocalDataSource.initialize();
+  await dotenv.load(fileName: ".env");
 
   runApp(const ChattingApp());
 }
